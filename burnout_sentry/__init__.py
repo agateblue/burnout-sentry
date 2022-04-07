@@ -1,9 +1,15 @@
 import json
+import logging
+import sys
 
 import click
 import pydriller
 import tabulate
 
+logger = logging.getLogger("burnout_sentry")
+logger.setLevel(logging.INFO)
+handler = logging.StreamHandler(sys.stderr)
+logger.addHandler(handler)
 
 SORT_FIELDS = [
     "none",
@@ -132,10 +138,10 @@ def report(
 
     Takes one or more repository path (URLs or paths to local directories).
     """
-    click.echo(f"Getting commits from {len(repository)} repositories…")
+    logger.info("Getting commits from %s repositories…", len(repository))
     commits = pydriller.Repository(list(repository)).traverse_commits()
 
-    click.echo(f"Crunching numbers…")
+    logger.info("Crunching numbers…")
     activity_params = {
         "off_weekdays": off_weekday,
         "workday_start": work_start,
