@@ -6,8 +6,8 @@ Core features:
 
 - [x] Extract data about contributors to one or more Git repositories
 - [x] Find out of office / work hours contributions using a set of predefined rules
-- [ ] Compute an "out of work contribution rate" (OoWCR) per contributor
-- [ ] Present the data in a user friendly format
+- [x] Compute an "out of work contribution rate" (OoWCR) per contributor
+- [x] Present the data in a user friendly format
 
 Nice to have:
 
@@ -15,7 +15,7 @@ Nice to have:
 - [ ] Restrict data to selected contributors
 - [ ] Collect data for a specific time frame only (e.g 3 months)
 - [ ] Show evolution of results compared to another period
-- [ ] Output to a machine-oriented format (e.g JSON) for easier manipulation by other scripts and tools
+- [x] Output to a machine-oriented format (e.g JSON) for easier manipulation by other scripts and tools
 
 # Installation
 

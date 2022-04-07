@@ -1,5 +1,8 @@
+import json
+
 import click
 import pydriller
+import tabulate
 
 
 SORT_FIELDS = [
@@ -28,7 +31,7 @@ def cli():
     "--sort",
     default="overtime_ratio",
     type=click.Choice(SORT_FIELDS),
-    help="Sort the results using the given field (use in combination with --reverse to reverse the order).",
+    help="Sort the results using the given field (use in combination with --reverse to reverse the order)",
 )
 @click.option(
     "-r",
@@ -36,7 +39,14 @@ def cli():
     is_flag=True,
     help="Reverse results order (use in combination with --sort)",
 )
-def report(repository, sort, reverse):
+@click.option(
+    "-f",
+    "--format",
+    default="rst",
+    type=click.Choice(sorted(list(tabulate._table_formats.keys()) + ["json"])),
+    help="Output format",
+)
+def report(repository, sort, reverse, format):
     """
     Extract data from the given repositories and display a report for
     each contributor.
@@ -61,10 +71,23 @@ def report(repository, sort, reverse):
     if reverse:
         contributors_activity = reversed(contributors_activity)
 
-    for activity in contributors_activity:
-        click.echo(
-            f"{activity['contributor']} - {activity['total_commits']} commits - {activity['overtime_commits']} overtime commits"
+    if format == "json":
+        return click.echo(json.dumps(list(contributors_activity), indent=2, sort_keys=True))
+
+    # construct data table for display in console
+    headers = ["Contributor", "Total Commits", "Overtime Commits", "Overtime Ratio"]
+    rows = [
+        (
+            a["contributor"],
+            a["total_commits"],
+            a["overtime_commits"],
+            f"{a['overtime_commits'] / a['total_commits']:.1f} %",
         )
+        for a in contributors_activity
+    ]
+
+    table = tabulate.tabulate(rows, headers, tablefmt=format)
+    click.echo(table)
 
 
 def get_transformed_commits(commits):
