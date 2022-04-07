@@ -63,20 +63,16 @@ def test_get_contributors_activity():
     )
 
     expected = [
-        (
-            "me@agate.blue",
-            {
-                "total_commits": 3,
-                "overtime_commits": 2,
-            },
-        ),
-        (
-            "valentin@entrouvert.com",
-            {
-                "total_commits": 1,
-                "overtime_commits": 0,
-            },
-        ),
+        {
+            "contributor": "me@agate.blue",
+            "total_commits": 3,
+            "overtime_commits": 2,
+        },
+        {
+            "contributor": "valentin@entrouvert.com",
+            "total_commits": 1,
+            "overtime_commits": 0,
+        },
     ]
 
     assert activity == expected
@@ -94,10 +90,14 @@ def test_get_contributors_activity():
 )
 def test_sort_activity(field, expected_order):
     activity = [
-        ("a@entrouvert.com", {"total_commits": 12, "overtime_commits": 8}),
-        ("d@entrouvert.com", {"total_commits": 23, "overtime_commits": 15}),
-        ("b@entrouvert.com", {"total_commits": 15, "overtime_commits": 1}),
-        ("c@entrouvert.com", {"total_commits": 47, "overtime_commits": 4}),
+        {"contributor": "a@entrouvert.com", "total_commits": 12, "overtime_commits": 8},
+        {
+            "contributor": "d@entrouvert.com",
+            "total_commits": 23,
+            "overtime_commits": 15,
+        },
+        {"contributor": "b@entrouvert.com", "total_commits": 15, "overtime_commits": 1},
+        {"contributor": "c@entrouvert.com", "total_commits": 47, "overtime_commits": 4},
     ]
 
     expected = [activity[i] for i in expected_order]

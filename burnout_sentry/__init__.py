@@ -1,5 +1,3 @@
-import collections
-
 import click
 import pydriller
 
@@ -61,11 +59,11 @@ def report(repository, sort, reverse):
     contributors_activity = sort_activity(contributors_activity, sort)
 
     if reverse:
-        contributors_activity = sorted(contributors_activity, reverse=reverse)
+        contributors_activity = reversed(contributors_activity)
 
-    for contributor, activity in contributors_activity:
+    for activity in contributors_activity:
         click.echo(
-            f"{contributor} - {activity['total_commits']} commits - {activity['overtime_commits']} overtime commits"
+            f"{activity['contributor']} - {activity['total_commits']} commits - {activity['overtime_commits']} overtime commits"
         )
 
 
@@ -106,11 +104,16 @@ def get_contributors_activity(
     workday_start,
     workday_end,
 ):
-    per_contributor_data = collections.defaultdict(
-        lambda: {"total_commits": 0, "overtime_commits": 0}
-    )
+    per_contributor_data = {}
     for commit in commits:
-        contributor_data = per_contributor_data[commit["author_email"]]
+        contributor_data = per_contributor_data.get(
+            commit["author_email"],
+            {
+                "total_commits": 0,
+                "overtime_commits": 0,
+                "contributor": commit["author_email"],
+            },
+        )
         contributor_data["total_commits"] += 1
         is_overtime = is_overtime_date(
             commit["date"],
@@ -121,7 +124,9 @@ def get_contributors_activity(
         if is_overtime:
             contributor_data["overtime_commits"] += 1
 
-    return [(contributor, data) for contributor, data in per_contributor_data.items()]
+        per_contributor_data[commit["author_email"]] = contributor_data
+
+    return [data for data in per_contributor_data.values()]
 
 
 def sort_activity(activity, field):
@@ -130,15 +135,11 @@ def sort_activity(activity, field):
 
     if field == "none":
         return activity
-    if field == "contributor":
-        return sorted(activity, key=lambda v: v[0])
-    if field == "total_commits":
-        return sorted(activity, key=lambda v: v[1]["total_commits"])
-    if field == "overtime_commits":
-        return sorted(activity, key=lambda v: v[1]["overtime_commits"])
+    if field in ["contributor", "total_commits", "overtime_commits"]:
+        return sorted(activity, key=lambda v: v[field])
     if field == "overtime_ratio":
         return sorted(
-            activity, key=lambda v: v[1]["overtime_commits"] / v[1]["total_commits"]
+            activity, key=lambda v: v["overtime_commits"] / v["total_commits"]
         )
 
     raise NotImplementedError(f"Sorting on {field} is not implemented")
