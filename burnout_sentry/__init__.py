@@ -46,7 +46,14 @@ def cli():
     type=click.Choice(sorted(list(tabulate._table_formats.keys()) + ["json"])),
     help="Output format",
 )
-def report(repository, sort, reverse, format):
+@click.option(
+    "-l",
+    "--limit",
+    default=None,
+    type=int,
+    help="Truncate result list to the desired length",
+)
+def report(repository, sort, reverse, format, limit):
     """
     Extract data from the given repositories and display a report for
     each contributor.
@@ -71,8 +78,13 @@ def report(repository, sort, reverse, format):
     if reverse:
         contributors_activity = reversed(contributors_activity)
 
+    if limit:
+        contributors_activity = list(contributors_activity)[:limit]
+
     if format == "json":
-        return click.echo(json.dumps(list(contributors_activity), indent=2, sort_keys=True))
+        return click.echo(
+            json.dumps(list(contributors_activity), indent=2, sort_keys=True)
+        )
 
     # construct data table for display in console
     headers = ["Contributor", "Total Commits", "Overtime Commits", "Overtime Ratio"]
