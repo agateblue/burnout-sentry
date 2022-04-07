@@ -93,7 +93,7 @@ def report(repository, sort, reverse, format, limit):
             a["contributor"],
             a["total_commits"],
             a["overtime_commits"],
-            f"{a['overtime_commits'] / a['total_commits'] * 100:.1f} %",
+            f"{a['overtime_commits'] / a['total_commits'] * 100:.0f} %",
         )
         for a in contributors_activity
     ]
