@@ -50,11 +50,66 @@ python3 -m burnout_sentry report --help
 # Usage
 
 ```bash
-# clone a repository you want to extract data from
+# clone a few repositories you want to extract data from
 git clone https://git.entrouvert.org/passerelle.git /tmp/passerelle
+git clone https://git.entrouvert.org/combo-plugin-gnm.git/ /tmp/combo-plugin-gnm
+git clone https://git.entrouvert.org/authentic.git/ /tmp/authentic
 
-# Get a standard report
+# Get a basic report from a single repository
 burnout-sentry report /tmp/passerelle
+
+# Get a report from a single repository, sorted by contributor email
+burnout-sentry report --sort contributor /tmp/passerelle
+
+# Get a report including data from multiple repositories
+burnout-sentry report \
+    /tmp/passerelle \
+    /tmp/combo-plugin-gnm \
+    /tmp/authentic
+
+# Show the 3 contributors with the most overtime commits
+burnout-sentry report \
+    --sort overtime_commits \
+    --reverse \
+    --limit 3 \
+    /tmp/passerelle 
+
+# Show the 3 contributors with the greatest overtime commits ratio
+burnout-sentry report \
+    --sort overtime_ratio \
+    --reverse \
+    --limit 3 \
+    /tmp/passerelle 
+
+# Show results for first quarter of 2021
+burnout-sentry report \
+    --after 2021-01-01 \
+    --before 2021-03-31 \
+    /tmp/passerelle 
+
+# Show results matching specific emails
+burnout-sentry report \
+    --match fpeters \
+    --match vdeniaud \
+    /tmp/passerelle 
+
+# Show result with a custom work time configuration:
+# - Days start at 09:30
+# - Days end at 17:30
+# - Fridays, saturdays and sundays are off
+burnout-sentry report \
+    --work-start 09:30 \
+    --work-end 17:30 \
+    --off-weekday 4 \
+    --off-weekday 5 \
+    --off-weekday 6 \
+    /tmp/passerelle 
+
+# Output results in github markdown format
+burnout-sentry report --format github /tmp/passerelle 
+
+# Output results in JSON format
+burnout-sentry report --format json /tmp/passerelle 
 ```
 
 # Running tests
