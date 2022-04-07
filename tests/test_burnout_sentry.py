@@ -80,3 +80,26 @@ def test_get_contributors_activity():
     ]
 
     assert activity == expected
+
+
+@pytest.mark.parametrize(
+    "field, expected_order",
+    [
+        ("none", [0, 1, 2, 3]),
+        ("contributor", [0, 2, 3, 1]),
+        ("total_commits", [0, 2, 1, 3]),
+        ("overtime_commits", [2, 3, 0, 1]),
+        ("overtime_ratio", [2, 3, 1, 0]),
+    ],
+)
+def test_sort_activity(field, expected_order):
+    activity = [
+        ("a@entrouvert.com", {"total_commits": 12, "overtime_commits": 8}),
+        ("d@entrouvert.com", {"total_commits": 23, "overtime_commits": 15}),
+        ("b@entrouvert.com", {"total_commits": 15, "overtime_commits": 1}),
+        ("c@entrouvert.com", {"total_commits": 47, "overtime_commits": 4}),
+    ]
+
+    expected = [activity[i] for i in expected_order]
+
+    assert burnout_sentry.sort_activity(activity, field) == expected

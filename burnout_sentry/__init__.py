@@ -4,6 +4,15 @@ import click
 import pydriller
 
 
+SORT_FIELDS = [
+    "none",
+    "contributor",
+    "total_commits",
+    "overtime_commits",
+    "overtime_ratio",
+]
+
+
 @click.group()
 def cli():
     """
@@ -16,7 +25,20 @@ def cli():
 
 @cli.command("report")
 @click.argument("repository", nargs=-1, required=True)
-def report(repository):
+@click.option(
+    "-s",
+    "--sort",
+    default="overtime_ratio",
+    type=click.Choice(SORT_FIELDS),
+    help="Sort the results using the given field (use in combination with --reverse to reverse the order).",
+)
+@click.option(
+    "-r",
+    "--reverse",
+    is_flag=True,
+    help="Reverse results order (use in combination with --sort)",
+)
+def report(repository, sort, reverse):
     """
     Extract data from the given repositories and display a report for
     each contributor.
@@ -35,6 +57,11 @@ def report(repository):
     contributors_activity = get_contributors_activity(
         get_transformed_commits(commits), **activity_params
     )
+
+    contributors_activity = sort_activity(contributors_activity, sort)
+
+    if reverse:
+        contributors_activity = sorted(contributors_activity, reverse=reverse)
 
     for contributor, activity in contributors_activity:
         click.echo(
@@ -95,6 +122,26 @@ def get_contributors_activity(
             contributor_data["overtime_commits"] += 1
 
     return [(contributor, data) for contributor, data in per_contributor_data.items()]
+
+
+def sort_activity(activity, field):
+    if field not in SORT_FIELDS:
+        raise ValueError(f"{field} isn't a supported field for sorting")
+
+    if field == "none":
+        return activity
+    if field == "contributor":
+        return sorted(activity, key=lambda v: v[0])
+    if field == "total_commits":
+        return sorted(activity, key=lambda v: v[1]["total_commits"])
+    if field == "overtime_commits":
+        return sorted(activity, key=lambda v: v[1]["overtime_commits"])
+    if field == "overtime_ratio":
+        return sorted(
+            activity, key=lambda v: v[1]["overtime_commits"] / v[1]["total_commits"]
+        )
+
+    raise NotImplementedError(f"Sorting on {field} is not implemented")
 
 
 if __name__ == "__main__":

@@ -11,6 +11,7 @@ Core features:
 
 Nice to have:
 
+- [x] Custom sorting order (total commits, contributor, overtime ratio) / reverse
 - [ ] Restrict data to selected contributors
 - [ ] Collect data for a specific time frame only (e.g 3 months)
 - [ ] Show evolution of results compared to another period
