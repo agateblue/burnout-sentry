@@ -108,8 +108,9 @@ burnout-sentry report \
 # Output results in github markdown format
 burnout-sentry report --format github /tmp/passerelle 
 
-# Output results in JSON format
-burnout-sentry report --format json /tmp/passerelle 
+# Output results in JSON format and get the total number
+# of overtime commits using jq
+burnout-sentry report --format json /tmp/passerelle  | jq '[.[].overtime_commits] | add'
 ```
 
 # Running tests
