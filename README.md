@@ -1,4 +1,4 @@
-A command-line tool to detect potential burn-out situations.
+A command-line tool to detect potential burn-out situations from Git repositories.
 
 # Features
 
