@@ -67,7 +67,15 @@ def cli():
     type=click.DateTime(),
     help="Restrict to commit authored after the given date (inclusive)",
 )
-def report(repository, sort, reverse, format, limit, before, after):
+@click.option(
+    "-m",
+    "--match",
+    default=None,
+    type=str,
+    multiple=True,
+    help="Restrict to author email matching one of the given strings",
+)
+def report(repository, sort, reverse, format, limit, before, after, match):
     """
     Extract data from the given repositories and display a report for
     each contributor.
@@ -85,7 +93,7 @@ def report(repository, sort, reverse, format, limit, before, after):
     }
     transformed_commits = get_transformed_commits(commits)
     transformed_commits = filter_commits(
-        transformed_commits, after=after, before=before
+        transformed_commits, after=after, before=before, match=match
     )
     contributors_activity = get_contributors_activity(
         transformed_commits, **activity_params
@@ -136,7 +144,7 @@ def get_transformed_commits(commits):
         }
 
 
-def filter_commits(commits, after=None, before=None):
+def filter_commits(commits, after=None, before=None, match=[]):
     for commit in commits:
         # XXX: we'll need to double check results on repos with
         # commiters from different timezones. Currently, we assume
@@ -146,7 +154,10 @@ def filter_commits(commits, after=None, before=None):
             continue
         if before and commit["date"] > before.replace(tzinfo=commit["date"].tzinfo):
             continue
-
+        if match and not any(
+            (q.lower() in commit["author_email"].lower() for q in match)
+        ):
+            continue
         yield commit
 
 
