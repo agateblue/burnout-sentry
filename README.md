@@ -39,7 +39,11 @@ cd burnout-sentry
 pip3 install --user -e '.[dev]'
 
 # at this point, you should be able to use burnout-sentry
-burnout-sentry --help
+burnout-sentry report --help
+# or
+python3 burnout_sentry/__init__.py report --help
+# or
+python3 -m burnout_sentry report --help
 ```
 
 # Usage
