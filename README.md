@@ -1,3 +1,5 @@
+[![Run tests](https://github.com/agateblue/burnout-sentry/actions/workflows/tests.yml/badge.svg)](https://github.com/agateblue/burnout-sentry/actions/workflows/tests.yml)
+
 A command-line tool to detect potential burn-out situations from Git repositories.
 
 # Features
