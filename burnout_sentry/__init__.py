@@ -24,6 +24,25 @@ def cli():
     pass
 
 
+class Time(click.ParamType):
+    name = "time"
+
+    def convert(self, value, param, ctx):
+        parts = value.split(":")
+        try:
+            # easiest case, a string such as 07:30 was provided
+            hour, minute = parts
+        except ValueError:
+            # assume only hour was given and minute is 0
+            hour, minute = parts[0], 0
+
+        try:
+            hour, minute = int(hour), int(minute)
+        except (TypeError, ValueError):
+            self.fail(f"{value!r} is not a time", param, ctx)
+        return hour, minute
+
+
 @cli.command("report")
 @click.argument("repository", nargs=-1, required=True)
 @click.option(
@@ -75,7 +94,38 @@ def cli():
     multiple=True,
     help="Restrict to author email matching one of the given strings",
 )
-def report(repository, sort, reverse, format, limit, before, after, match):
+@click.option(
+    "--work-start",
+    type=Time(),
+    default="08:00",
+    help="Start time for work days, e.g 08:30",
+)
+@click.option(
+    "--work-end",
+    type=Time(),
+    default="20:00",
+    help="End time for work days, e.g 18:30",
+)
+@click.option(
+    "--off-weekday",
+    type=int,
+    multiple=True,
+    default=[5, 6],
+    help="Weekdays considered as off days. 0 is Monday, 6 is Sunday, defaults to Saturday and Sunday. May be provided multiple times.",
+)
+def report(
+    repository,
+    sort,
+    reverse,
+    format,
+    limit,
+    before,
+    after,
+    match,
+    work_start,
+    work_end,
+    off_weekday,
+):
     """
     Extract data from the given repositories and display a report for
     each contributor.
@@ -87,9 +137,9 @@ def report(repository, sort, reverse, format, limit, before, after, match):
 
     click.echo(f"Crunching numbers…")
     activity_params = {
-        "off_weekdays": [5, 6],
-        "workday_start": (8, 0),
-        "workday_end": (20, 0),
+        "off_weekdays": off_weekday,
+        "workday_start": work_start,
+        "workday_end": work_end,
     }
     transformed_commits = get_transformed_commits(commits)
     transformed_commits = filter_commits(

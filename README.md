@@ -14,6 +14,7 @@ Nice to have:
 - [x] Custom sorting order (total commits, contributor, overtime ratio) / reverse
 - [x] Restrict data to selected contributors
 - [x] Collect data for a specific time frame only (e.g 3 months)
+- [x] Configurable work days and times
 - [ ] Show evolution of results compared to another period
 - [x] Output to a machine-oriented format (e.g JSON) for easier manipulation by other scripts and tools
 - [ ] Timezone handling
