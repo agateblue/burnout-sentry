@@ -53,7 +53,21 @@ def cli():
     type=int,
     help="Truncate result list to the desired length",
 )
-def report(repository, sort, reverse, format, limit):
+@click.option(
+    "-b",
+    "--before",
+    default=None,
+    type=click.DateTime(),
+    help="Restrict to commit authored before the given date (inclusive)",
+)
+@click.option(
+    "-a",
+    "--after",
+    default=None,
+    type=click.DateTime(),
+    help="Restrict to commit authored after the given date (inclusive)",
+)
+def report(repository, sort, reverse, format, limit, before, after):
     """
     Extract data from the given repositories and display a report for
     each contributor.
@@ -69,8 +83,12 @@ def report(repository, sort, reverse, format, limit):
         "workday_start": (8, 0),
         "workday_end": (20, 0),
     }
+    transformed_commits = get_transformed_commits(commits)
+    transformed_commits = filter_commits(
+        transformed_commits, after=after, before=before
+    )
     contributors_activity = get_contributors_activity(
-        get_transformed_commits(commits), **activity_params
+        transformed_commits, **activity_params
     )
 
     contributors_activity = sort_activity(contributors_activity, sort)
@@ -116,6 +134,20 @@ def get_transformed_commits(commits):
             "date": commit.author_date,
             "author_email": commit.author.email,
         }
+
+
+def filter_commits(commits, after=None, before=None):
+    for commit in commits:
+        # XXX: we'll need to double check results on repos with
+        # commiters from different timezones. Currently, we assume
+        # the date passed in filters is in the same timezone as the
+        # commit date
+        if after and commit["date"] < after.replace(tzinfo=commit["date"].tzinfo):
+            continue
+        if before and commit["date"] > before.replace(tzinfo=commit["date"].tzinfo):
+            continue
+
+        yield commit
 
 
 def is_overtime_date(

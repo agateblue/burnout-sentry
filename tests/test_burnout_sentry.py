@@ -103,3 +103,33 @@ def test_sort_activity(field, expected_order):
     expected = [activity[i] for i in expected_order]
 
     assert burnout_sentry.sort_activity(activity, field) == expected
+
+
+@pytest.mark.parametrize(
+    "after, before, expected_indexes",
+    [
+        (None, None, [0, 1, 2, 3]),
+        (None, datetime.datetime(2022, 1, 1), [0, 1]),
+        (datetime.datetime(2022, 1, 1), None, [2, 3]),
+        (datetime.datetime(2021, 3, 10), datetime.datetime(2022, 1, 1), [1]),
+    ],
+)
+def test_filter_commits(before, after, expected_indexes):
+    commits = [
+        {
+            "date": datetime.datetime(2021, 3, 1, tzinfo=datetime.timezone.utc),
+        },
+        {
+            "date": datetime.datetime(2021, 3, 15, tzinfo=datetime.timezone.utc),
+        },
+        {
+            "date": datetime.datetime(2022, 3, 4, tzinfo=datetime.timezone.utc),
+        },
+        {
+            "date": datetime.datetime(2022, 3, 5, tzinfo=datetime.timezone.utc),
+        },
+    ]
+
+    expected = [commits[i] for i in expected_indexes]
+    result = burnout_sentry.filter_commits(commits, before=before, after=after)
+    assert list(result) == expected
